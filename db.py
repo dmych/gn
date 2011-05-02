@@ -150,6 +150,21 @@ class Note(object):
         self._data['content'] = text.rstrip()
         self._markModified()
 
+    def getTags(self):
+	if self._data.has_key('tags'):
+	    return ' '.join(self._data['tags'])
+	else:
+	    return None
+
+    def setTags(self, tags):
+	'''tags should be list/tuple of strings, or space separated string
+	'''
+	from types import StringTypes
+	if type(tags) in StringTypes:
+	    tags = [ item.strip() for item in tags.split(' ') ]
+	self._data['tags'] = list(tags)
+	self._markModified()
+
     def _genKey(self):
         self._data['key'] = KEY_PREFIX + str(time.time())
 

@@ -59,7 +59,7 @@ def print_note(i):
     else:
 	fl = ' '
     # print '%3i:    %s %s %s\t%s' % (i, note.getTitle(50).ljust(50), md.rjust(15), fl, note.getKey())
-    print '%3i:    %s %s %s' % (i, note.getTitle(50).ljust(50), md.rjust(15), fl)
+    print '%3i:    %s %s %s (%s)' % (i, note.getTitle(50).ljust(50), md.rjust(15), fl, note.getTags())
 
 #### cli commands
 
@@ -76,6 +76,7 @@ def show_list(arg):
         print_note(i)
 
 def edit(arg):
+    TagTemplate = '\n[TAGS]: '
     if arg is not None:
         try:
 	    note = db.Note(notes, keys[int(arg)])
@@ -83,6 +84,9 @@ def edit(arg):
             error('Invalid note number: %s' % arg)
         fname = os.path.join('/tmp', 'geekynote.%s.txt' % arg)
         content = note.getContent().encode('utf-8')
+	tags = note.getTags()
+	if tags:
+	    content += TagTemplate + tags
     else:
         fname = os.path.join('/tmp', 'geekynote.txt')
         content = ''
@@ -95,11 +99,18 @@ def edit(arg):
 	edcmd += ' %s'
     os.system(edcmd % (fname))
     if mtime != os.path.getmtime(fname):
-        print 'The note has been modified!'
         if arg is None:
             note = db.Note(notes)
             print 'New note has been created'
-        note.setContent(open(fname).read())
+	else:
+	    print 'The note has been modified!'
+	content = open(fname).read()
+	try:
+	    content, tags = content.split(TagTemplate)
+	except:
+	    tags = ''
+        note.setContent(content)
+	note.setTags(tags.strip())
         note.save()
     else:
         print 'Nothing changed'
