@@ -1,15 +1,16 @@
 # db.py: local database implementation
 
-'''This is a part of simpla project
-Simpla is a simplenote portableclient written in Python
-Copyright (c) Dmitri Brechalov, 2010
+'''This is a part of gn project
+gn (Geeky Notes) is a CLI Simplenote client
+https://github.com/dmych/gn
+Copyright (c) Dmitri Brechalov, 2010-2011
 '''
 
 import shelve
 import os
 import time
 
-DATAFILE = os.path.expanduser('~/.simpla.db')
+DATAFILE = os.path.expanduser('~/.gn.db')
 
 ## Note format according to the API:
 ## {

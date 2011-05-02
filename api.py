@@ -1,8 +1,9 @@
 # api.py: simplenote API implementation
 
-'''This is a part of simpla project
-Simpla is a simplenote portableclient written in Python
-Copyright (c) Dmitri Brechalov, 2010
+'''This is a part of gn project
+gn (Geeky Notes) is a CLI Simplenote client
+https://github.com/dmych/gn
+Copyright (c) Dmitri Brechalov, 2010-2011
 
 This code is based on python-simplenote project
 '''
