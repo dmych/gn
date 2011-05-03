@@ -153,7 +153,8 @@ class Note(object):
 
     def getTags(self):
 	if self._data.has_key('tags'):
-	    return ' '.join(self._data['tags'])
+	    tags = ' '.join([ tag.encode('utf-8') for tag in self._data['tags']])
+	    return tags
 	else:
 	    return None
 
@@ -162,7 +163,8 @@ class Note(object):
 	'''
 	from types import StringTypes
 	if type(tags) in StringTypes:
-	    tags = [ item.strip() for item in tags.split(' ') ]
+	    tags = [ item.strip().decode('utf-8') for item in tags.split(' ') ]
+	print tags
 	self._data['tags'] = list(tags)
 	self._markModified()
 

@@ -84,19 +84,33 @@ class Simplenote(object):
         self._token = res.read().strip()
         return self._token
 
-    def index(self, **kwargs):
-	'''Return the index (optional API args length, mark etc allowed)
+    def _getIndexPortion(self, mark=None, **kwargs):
+	'''Get raw response with portion of index from Simplenote
 	'''
         args = '&'.join([ '%s=%s' % (k, v) for k, v in kwargs.items() ])
 	if args:
 	    args = '&' + args
         url = '%sindex?%s%s' % (self.api2_url, self._getAuth(), args)
+	dbg(url)
+	if mark is not None:
+	    url += '&mark=%s' % (mark)
 	dbg('INDEX: ' + url)
         res = urllib.urlopen(url)
         response = json.loads(res.read().replace('\t', '\\t'))
+	dbg('RESPONSE:\n' + repr(response))
+	return response
+
+    def index(self, **kwargs):
+	'''Return the index (optional API args length etc allowed)
+	'''
+	response = self._getIndexPortion(**kwargs)
 	self._index = list()
-	for rec in response['data']:
-	    self._index.append(self._s(rec))
+	while True:
+	    for rec in response['data']:
+		self._index.append(self._s(rec))
+	    if not response.has_key('mark'):
+		break
+	    response = self._getIndexPortion(response['mark'], **kwargs)
         return self._index
 
     def keys(self):
