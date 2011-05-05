@@ -26,9 +26,9 @@ try:
 except ImportError:
     import simplejson as json
 
-VERSION = "0.0"
+VERSION = "0.1"
 
-USER_AGENT = "simpla/%s" % (VERSION)
+USER_AGENT = "Geeky Notes/%s" % (VERSION)
 
 class SimplenoteError(Exception):
     def __init__(self, method, msg):

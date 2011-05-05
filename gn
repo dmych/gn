@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- mode: python; coding: utf-8; -*-
 
-'''gn: Geeky Notes - simplenote CLI client
+'''gn: Geeky Notes - simplenote CLI client (ver.%s)
 
 Commands:
     $ gn [ls]          - show list of notes
@@ -17,6 +17,7 @@ import os
 import sys
 import sync
 import db
+import api
 
 config = dict()
 
@@ -45,7 +46,7 @@ def read_config():
 def init():
     global notes, keys
     read_config()
-    config['dir'] = os.path.expanduser(config['dir'])
+#    config['dir'] = os.path.expanduser(config['dir'])
     # if not os.path.isdir(config['dir']):
     #     os.mkdir(config['dir'])
     notes = db.Database()
@@ -58,13 +59,12 @@ def print_note(i):
 	fl = '*'
     else:
 	fl = ' '
-    # print '%3i:    %s %s %s\t%s' % (i, note.getTitle(50).ljust(50), md.rjust(15), fl, note.getKey())
-    print '%3i:    %s %s %s (%s)' % (i, note.getTitle(50).ljust(50), md.rjust(15), fl, note.getTags())
+    print '%3i:    %s %s %s (%s)' % (i, note.getTitle(50).ljust(50), md.rjust(15), fl, note.getTags().decode('utf-8'))
 
 #### cli commands
 
 def help(arg):
-    print __doc__
+    print __doc__ % (api.VERSION)
 
 def synchronize(arg):
     if not (config.has_key('email') or config.has_key('password')):

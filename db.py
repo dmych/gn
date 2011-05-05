@@ -31,7 +31,7 @@ DATAFILE = os.path.expanduser('~/.gn.db')
 ## Our own fields:
 ##    CHANGED:  (bool, did the note changed locally?)
 
-KEY_PREFIX = 'SIMPLA_'
+KEY_PREFIX = 'GEEKYNOTES_'
 
 class Database(object):
     '''Local simplenote database based on shelve storage
@@ -164,7 +164,6 @@ class Note(object):
 	from types import StringTypes
 	if type(tags) in StringTypes:
 	    tags = [ item.strip().decode('utf-8') for item in tags.split(' ') ]
-	print tags
 	self._data['tags'] = list(tags)
 	self._markModified()
 
