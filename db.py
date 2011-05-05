@@ -44,20 +44,22 @@ class Database(object):
             fname = DATAFILE
         self.db = shelve.open(fname)
 
-    def _getTemporaryKey(self):
-	return KEY_PREFIX + str(time.time())
-
     def _getKeys(self, deleted=False):
 	if deleted:
-	    keys = self.db.keys()
+	    return self.db.keys()
 	else:
-	    keys = [k for k in self.db.keys() if self.db[k]['deleted'] == 0]
-	return keys
+	    return [k for k in self.db.keys() if self.db[k]['deleted'] == 0]
 
     def values(self):
 	return self.db.values()
 
     def index(self, sort=None, reverse=True, deleted=False):
+	'''Return full index
+	sort may be True (use default sorting by modification time), or
+	it may be arbitrary compare function `func(note1, note2)`
+	reverse - list notes in asc or desc order
+	deleted - show or hide deleted notes
+	'''
 	def srt(n1, n2):
 	    n1m = float(n1['modifydate'])
 	    n2m = float(n2['modifydate'])
@@ -83,16 +85,9 @@ class Database(object):
 	return self.db[key]
 
     def update(self, data):
-	if data.has_key('key') and data['key'].startswith(KEY_PREFIX):
-	    del data['key']
-	if not data.has_key('key'):
-	    key = self._getTemporaryKey()
-	    data['key'] = key
-	else:
-	    key = data['key']
 	if not data.has_key('CHANGED'):
 	    data['CHANGED'] = False
-	self.db[key] = data
+	self.db[data['key']] = data
 	self.db.sync()
 
     def replace(self, oldkey, data):
@@ -139,12 +134,11 @@ class Note(object):
         content = self.getContent()
         eoln = content.find('\n')
         elipsis = ''
-        if eoln < 0 or eoln > length:
-            if eoln > length:
-                elipsis = '...'
-                eoln = length -3
-            else:
-                eoln = length
+	if eoln >= length:
+	    elipsis = '...'
+	    eoln = length -3
+	elif eoln < 0:
+	    eoln = length
         return content[:eoln].replace('\r', ' ').replace('\t', ' ') + elipsis
 
     def setContent(self, text):
@@ -153,8 +147,7 @@ class Note(object):
 
     def getTags(self):
 	if self._data.has_key('tags'):
-	    tags = ' '.join([ tag.encode('utf-8') for tag in self._data['tags']])
-	    return tags
+	    return ' '.join([ tag.encode('utf-8') for tag in self._data['tags']])
 	else:
 	    return None
 

@@ -46,9 +46,6 @@ def read_config():
 def init():
     global notes, keys
     read_config()
-#    config['dir'] = os.path.expanduser(config['dir'])
-    # if not os.path.isdir(config['dir']):
-    #     os.mkdir(config['dir'])
     notes = db.Database()
     keys = notes.keys(sort=True)
 
@@ -59,7 +56,7 @@ def print_note(i):
 	fl = '*'
     else:
 	fl = ' '
-    print '%3i:    %s %s %s (%s)' % (i, note.getTitle(50).ljust(50), md.rjust(15), fl, note.getTags().decode('utf-8'))
+    print '%4i:%s%s %s %s' % (i, fl, note.getTitle(40).ljust(40), md.rjust(12), note.getTags().decode('utf-8'))
 
 #### cli commands
 
