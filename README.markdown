@@ -15,9 +15,11 @@ Before you run  **gn** you must create config file in your home directory (`~/.g
 
 ### gn commands are described here:
 
-    $ gn [ls]          - show list of notes
+    $ gn ls            - show list of notes
+    $ gn tags          - show tags
+    $ gn ls 'tag'      - show notes with the tag
     $ gn [find] 'text' - search for the 'text'
-    $ gn new           - new note
+    $ gn [new]         - new note
     $ gn [ed] N        - edit note N
     $ gn rm N          - delete note N
     $ gn sync          - sync with simplenote
