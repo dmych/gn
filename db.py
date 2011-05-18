@@ -93,6 +93,19 @@ class Database(object):
 	result.sort(cmp=sort, reverse=reverse)
         return result
 
+    def tags(self, reverse=False):
+	'''Return ordered list of tags
+	'''
+	print 'TAGS'
+	result = list()
+	for rec in self.values():
+	    if rec.has_key('tags'):
+		for tag in rec['tags']:
+		    if not tag in result:
+			result.append(tag)
+	result.sort(reverse=reverse)
+	return result
+
     def keys(self, sort=None, reverse=True, deleted=False):
 	result = [ item['key'] for item in self.index(sort, reverse, deleted) ]
 	return result
@@ -161,9 +174,12 @@ class Note(object):
         self._data['content'] = text.rstrip()
         self._markModified()
 
+    def tagList(self):
+	return [ tag.encode('utf-8') for tag in self._data['tags']]
+
     def getTags(self):
 	if self._data.has_key('tags'):
-	    return ' '.join([ tag.encode('utf-8') for tag in self._data['tags']])
+	    return ' '.join(self.tagList())
 	else:
 	    return None
 

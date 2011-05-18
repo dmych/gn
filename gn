@@ -24,14 +24,15 @@
 '''gn: Geeky Notes - simplenote CLI client (ver.%s)
 
 Commands:
-    $ gn [ls]          - show list of notes
+    $ gn ls            - show list of notes
+    $ gn tags          - show tags
+    $ gn ls 'tag'      - show notes with the tag
     $ gn [find] 'text' - search for the 'text'
-    $ gn new           - new note
+    $ gn [new]         - new note
     $ gn [ed] N        - edit note N
     $ gn rm N          - delete note N
     $ gn sync          - sync with simplenote
     $ gn help          - show this help
-
 '''
 
 import os
@@ -39,6 +40,7 @@ import sys
 import sync
 import db
 import api
+import re
 
 config = dict()
 
@@ -90,8 +92,22 @@ def synchronize(arg):
     sync.sync(config['email'], config['password'])
 
 def show_list(arg):
+    found = list()
     for i in range(len(keys)):
+        tags = db.Note(notes, keys[i]).tagList()
+        if arg is None or arg in tags:
+            found.append(i)
+    if len(found) == 0:
+        print "Not found"
+        return
+    if arg is not None:
+	print 'Notes labeled with the tag "%s":' % arg
+    for i in found:
         print_note(i)
+
+def show_tags(arg):
+    for tag in notes.tags():
+	print tag
 
 def edit(arg):
     TagTemplate = '\n[TAGS]: '
@@ -155,7 +171,7 @@ def search(arg):
     if len(found) == 0:
         print "Not found"
         return
-    print 'Expression "%s" found in the following notes:'
+    print 'Expression "%s" found in the following notes:' % arg
     for i in found:
         print_note(i)
 
@@ -163,6 +179,7 @@ commands = {
     'ed': edit,
     'new': edit,
     'ls': show_list,
+    'tags': show_tags,
     'rm': remove,
     'sync': synchronize,
     'find': search,
@@ -175,7 +192,7 @@ if __name__ == '__main__':
     init()
     argv = sys.argv[1:]
     if len(argv) == 0:
-        cmd = 'ls'
+        cmd = 'new'
         arg = None
     else:
         if argv[0] in commands.keys():
@@ -191,5 +208,6 @@ if __name__ == '__main__':
                 i = int(arg)
             except:
                 cmd = 'find'
+    print '>>> command:', cmd, 'arg:', arg, 'function:', commands[cmd]
     commands[cmd](arg)
     

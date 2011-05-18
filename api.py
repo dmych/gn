@@ -40,7 +40,7 @@ try:
 except ImportError:
     import simplejson as json
 
-VERSION = "0.1"
+VERSION = "0.2"
 
 USER_AGENT = "Geeky Notes/%s" % (VERSION)
 
