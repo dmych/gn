@@ -41,34 +41,15 @@ import sync
 import db
 import api
 import re
-
-config = dict()
+from config import Config
 
 def error(msg):
     sys.stderr.write('%s\n' % msg)
     sys.exit(1)
 
-def read_config():
-    global config
-    cfgname = os.path.expanduser('~/.gn')
-    try:
-        cfg = open(cfgname)
-    except IOError:
-        error('Cannot read config file ~/.gn!')
-    for line in cfg.readlines():
-        line = line.strip()
-        if not line or line.startswith('#'):
-            continue
-        try:
-            k, v = line.strip().split('=')
-        except ValueError:
-            error('Invalid line in config file ~/.gn:\n%s' % line)
-        config[k] = v
-    cfg.close()
-
 def init():
-    global notes, keys
-    read_config()
+    global notes, keys, config
+    config = Config(os.path.expanduser('~/.gn'))
     notes = db.Database()
     keys = notes.keys(sort=True)
 
@@ -89,7 +70,12 @@ def help(arg):
 def synchronize(arg):
     if not (config.has_key('email') or config.has_key('password')):
         error('No simplenote credentials set in config file!')
-    sync.sync(config['email'], config['password'])
+    if config.has_key('lastsync'):
+	since = config['lastsync']
+    else:
+	since = None
+    since = sync.sync(config['email'], config['password'], since)
+    config['lastsync'] = since
 
 def show_list(arg):
     found = list()
@@ -131,6 +117,7 @@ def edit(arg):
     edcmd = config['editor']
     if edcmd.find('%s') < 0:
 	edcmd += ' %s'
+    print '>>>>', edcmd % (fname)
     os.system(edcmd % (fname))
     if mtime != os.path.getmtime(fname):
         if arg is None:

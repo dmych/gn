@@ -24,6 +24,7 @@ sync.py: synchronization between local database and remote service
 
 from api import Simplenote
 from db import Database, KEY_PREFIX
+import time
 
 VERBOSE_DEBUG = False
 
@@ -32,7 +33,7 @@ def dbg(msg):
     from sys import stderr
     stderr.write('**** %s\n' % (msg))
 
-def sync(user, password, localdb=None):
+def sync(user, password, since=None, localdb=None):
     db = Database(localdb)
     api = Simplenote(user, password)
     dbg('LOCAL TO REMOTE:')
@@ -54,8 +55,13 @@ def sync(user, password, localdb=None):
 	    if k is not None:
 		db.remove(k)
 	    synced_count += 1
-    rindex = api.index()
+    if since:
+	rindex = api.index(since=since)
+	dbg('>>>> SINCE: %s' % since)
+    else:
+	rindex = api.index()
     dbg('REMOTE TO LOCAL:')
+    dbg('>>>> RINDEX LEN: %s' % len(rindex))
     for ritem in rindex:
 	key = ritem['key']
 	if key not in db.keys(deleted=True):
@@ -68,13 +74,13 @@ def sync(user, password, localdb=None):
 	    db.update(api.get(key))
 	    synced_count += 1
     dbg('CLEAN UP:')
-    rkeys = api.keys().keys()
     for k in db.keys(deleted=True):
-	if k not in rkeys:
+	litem = db.get(k)
+	if litem['deleted'] != 0:
 	    dbg('  DEL: %s' % k)
 	    db.remove(k)
-	    synced_count += 1
     print 'Synced', synced_count, 'notes.'
+    return time.time()
 	    
 if __name__ == '__main__':
     import sys

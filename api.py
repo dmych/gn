@@ -23,12 +23,23 @@ api.py: simplenote API implementation
 '''
 
 import base64
-import datetime
 import logging
 import urllib
 import urllib2
 
 VERBOSE_DEBUG = False
+
+# as suggested in  http://groups.google.com/group/simplenote-api/msg/d82541d58e7109f8
+escape_table = (  
+    ('#', '%23'), 
+#    ('$', '%24'),
+    ('%', '%25'),
+    ('+', '%2b'),
+    ('&', '%26'),
+    (';', '%3b'),
+    ('^', '%5e'),
+    ('~', '%7e'),
+    )
 
 def dbg(msg):
     if not VERBOSE_DEBUG: return
@@ -159,7 +170,14 @@ class Simplenote(object):
 	if data.has_key('key'):
 	    url += '/%s' % (data['key'])
 	url += '?' + self._getAuth()
-	edata = json.dumps(data)
+	edt = data.copy()
+	cnt = edt['content']
+	for c, v in escape_table:
+	    cnt = cnt.replace(c, v)
+	edt['content'] = cnt
+	edata = json.dumps(edt)
+	dbg('TYPE (data):  ' + str(type(data)))
+	dbg('TYPE (edata): ' + str(type(edata)))
 	dbg('UPDATE: ' + url)
 	dbg('        ' + edata)
 	dbg('--------')
