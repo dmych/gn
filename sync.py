@@ -74,11 +74,19 @@ def sync(user, password, since=None, localdb=None):
 	    db.update(api.get(key))
 	    synced_count += 1
     dbg('CLEAN UP:')
-    for k in db.keys(deleted=True):
-	litem = db.get(k)
-	if litem['deleted'] != 0:
-	    dbg('  DEL: %s' % k)
-	    db.remove(k)
+    if since is None:
+	rkeys = api.keys().keys()
+	for k in db.keys(deleted=True):
+	    if k not in rkeys:
+		dbg('  DEL: %s' % k)
+		db.remove(k)
+		synced_count += 1
+    else:
+	for k in db.keys(deleted=True):
+	    litem = db.get(k)
+	    if litem['deleted'] != 0:
+		dbg('  DEL: %s' % k)
+		db.remove(k)
     print 'Synced', synced_count, 'notes.'
     return time.time()
 	    

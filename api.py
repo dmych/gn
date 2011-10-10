@@ -46,12 +46,16 @@ def dbg(msg):
     from sys import stderr
     stderr.write('**** %s\n' % (msg))
 
+def dbg2(msg):
+    from sys import stderr
+    stderr.write('**** %s\n' % (msg))
+
 try:
     import json
 except ImportError:
     import simplejson as json
 
-VERSION = "0.2"
+VERSION = "0.4"
 
 USER_AGENT = "Geeky Notes/%s" % (VERSION)
 
@@ -119,7 +123,7 @@ class Simplenote(object):
 	dbg(url)
 	if mark is not None:
 	    url += '&mark=%s' % (mark)
-	dbg('INDEX: ' + url)
+	dbg2('INDEX: ' + url)
         res = urllib.urlopen(url)
         response = json.loads(res.read().replace('\t', '\\t'))
 	dbg('RESPONSE:\n' + repr(response))
