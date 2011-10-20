@@ -1,3 +1,5 @@
+-*- mode: markdown; coding: utf-8; -*-
+
 "gn" stands for "geeky notes" - console simplenote client
 ----------------------------------------------------------
 
@@ -9,8 +11,11 @@ Before you run  **gn** you must create config file in your home directory (`~/.g
     password=yourpassword
     editor=editor of your choice
     autosync=1
+    pagesize=N
     
 When `autosync` option is set to `1` or `true`, any change of notes (createing, modifying or deleting)  will be immediately synced with the server.
+
+Parameter `pagesize` sets "page size" for `ls` command. `0` value means "no pages" (by default).
 
 ### gn commands are described here:
 

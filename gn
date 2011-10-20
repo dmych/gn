@@ -47,6 +47,9 @@ def error(msg):
     sys.stderr.write('%s\n' % msg)
     sys.exit(1)
 
+def msg(s):
+    sys.stderr.write('%s\n' % s)
+
 def init():
     global notes, keys, config
     config = Config(os.path.expanduser('~/.gn'))
@@ -90,12 +93,15 @@ def help(arg):
 def synchronize(arg):
     if not (config.has_key('email') or config.has_key('password')):
         error('No simplenote credentials set in config file!')
-    print 'Syncing...'
+    msg('Syncing...')
     if arg != 'full' and config.has_key('lastsync'):
 	since = config['lastsync']
     else:
 	since = None
-    since = sync.sync(config['email'], config['password'], since)
+    try:
+	since = sync.sync(config['email'], config['password'], since)
+    except Exception as e:
+	error('Error occured: %s' % ' '.join([str(arg) for arg in e.args]))
     config['lastsync'] = since
 
 def show_list(arg):
@@ -117,8 +123,10 @@ def show_tags(arg):
     for tag in notes.tags():
 	print tag
 
-def edit(arg):
-    TagTemplate = '\n[TAGS]: '
+TagTemplate = '\n[TAGS]: '
+
+def _tmp_export(arg):
+    #### generate tmp file with note's contents
     if arg is not None:
         try:
 	    note = db.Note(notes, keys[int(arg)])
@@ -136,17 +144,17 @@ def edit(arg):
     fd.write(content)
     fd.close()
     mtime = os.path.getmtime(fname)
-    edcmd = config['editor']
-    if edcmd.find('%s') < 0:
-	edcmd += ' %s'
-    print '>>>>', edcmd % (fname)
-    os.system(edcmd % (fname))
+    return fname, mtime
+
+def _tmp_import(arg, fname, mtime):
+    #### read the tmp file back to the note
     if mtime != os.path.getmtime(fname):
         if arg is None:
             note = db.Note(notes)
-            print 'New note has been created'
+            msg('New note has been created')
 	else:
-	    print 'The note has been modified!'
+	    note = db.Note(notes, keys[int(arg)])
+	    msg('The note has been modified!')
 	content = open(fname).read()
 	try:
 	    content, tags = content.split(TagTemplate)
@@ -158,8 +166,19 @@ def edit(arg):
 	if config.has_key('autosync') and config['autosync'].lower() in ('1', 'true'):
 	    synchronize(None)
     else:
-        print 'Nothing changed'
+        msg('Nothing changed')
+    #### remove the tmp file
     os.unlink(fname)
+    
+def edit(arg):
+    fname, mtime = _tmp_export(arg)
+    #### call editor with the tmp file
+    edcmd = config['editor']
+    if edcmd.find('%s') < 0:
+	edcmd += ' %s'
+    #print '>>>>', edcmd % (fname)
+    os.system(edcmd % (fname))
+    _tmp_import(arg, fname, mtime)
 
 def remove(arg):
     if arg is None:
@@ -172,7 +191,7 @@ def remove(arg):
     note.save()
     if config.has_key('autosync') and config['autosync'].lower() in ('1', 'true'):
 	synchronize(None)
-    print 'The note %s has been deleted' % arg
+    msg('The note %s has been deleted' % arg)
 
 def search(arg):
     import re
@@ -221,6 +240,6 @@ if __name__ == '__main__':
                 i = int(arg)
             except:
                 cmd = 'find'
-    print '>>> command:', cmd, 'arg:', arg, 'function:', commands[cmd]
+    #print '>>> command:', cmd, 'arg:', arg, 'function:', commands[cmd]
     commands[cmd](arg)
     

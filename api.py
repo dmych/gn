@@ -123,7 +123,7 @@ class Simplenote(object):
 	dbg(url)
 	if mark is not None:
 	    url += '&mark=%s' % (mark)
-	dbg2('INDEX: ' + url)
+	#dbg2('INDEX: ' + url)
         res = urllib.urlopen(url)
         response = json.loads(res.read().replace('\t', '\\t'))
 	dbg('RESPONSE:\n' + repr(response))
